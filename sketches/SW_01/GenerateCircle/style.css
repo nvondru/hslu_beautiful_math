@@ -3,3 +3,14 @@ html {
   margin: 0;
   padding: 0;
 }
+
+.hidden {
+  display: none;
+}
+
+#commentCard {
+  position: absolute;
+  top: 400px;
+  left: 400px;
+  transform: translate(-50%, -50%);
+}
