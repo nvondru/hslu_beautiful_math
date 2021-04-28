@@ -1,50 +1,78 @@
 let canvas;
 let radius = 300;
-let points = 30000;
-let commentOpen = false;
-let comment = "";
+let points = 10;
+let debug = true;
+let action = "polygon_points";
+let animationAngleStep = 1;
+let animationAngle = 0;
 
-let commentCard = document.getElementById("commentCard");
-let commentCard__input = document.getElementById("commentCard__input");
+let slider_radius;
+let slider_points;
+let checkbox_debugging;
+let select_action;
 
 function setup() {
   canvas = createCanvas(800, 800);
   angleMode(DEGREES);
+  frameRate(30);
+  slider_points = createSlider(1, 300, points, 1);
+  slider_radius = createSlider(10, width, radius, 1);
+  checkbox_debugging = createCheckbox("Debugging", debug);
+  checkbox_debugging.changed(toggleDebug);
+  select_action = createSelect();
+  select_action.option("polygon_points");
+  select_action.option("polygon_lines");
+  select_action.option("polygon_vertex");
+  select_action.option("spiral_archimedean");
+  select_action.option("spiral_logarithmic");
+  select_action.changed(changeAction);
+}
 
-  commentCard__input.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && commentOpen) {
-      comment = commentCard__input.value;
-      commentCard__input.value = "";
-      setTimeout(() => {
-        saveCanvas(canvas, "SW_01_" + commentCard__input.value, "png");
-        commentOpen = false;
-        commentCard.classList.add("hidden");
-      }, 50);
-    }
-  });
+function changeAction() {
+  action = select_action.value();
+}
 
-  document
-    .getElementsByTagName("body")[0]
-    .addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !commentOpen) {
-        commentOpen = true;
-        commentCard.classList.remove("hidden");
-        commentCard__input.focus();
-      }
-    });
+function toggleDebug() {
+  debug = this.checked();
 }
 
 function draw() {
+  radius = slider_radius.value();
+  points = slider_points.value();
   background(40);
   translate(width / 2, height / 2);
-  drawSpiralWithEllipses_logarithmic(false);
-  textSize(20);
-  textAlign(CENTER);
-  fill(0, 255, 0);
-  text(comment, -400, -350, 800);
+  animationAngle += animationAngleStep;
+  rotate(animationAngle);
+
+  switch (action) {
+    case "polygon_points":
+      drawWithLines_points();
+      break;
+
+    case "polygon_lines":
+      drawWithLines_width();
+      break;
+
+    case "polygon_vertex":
+      drawWithVertex();
+      break;
+
+    case "spiral_archimedean":
+      drawSpiralWithEllipses_archimedean();
+      break;
+
+    case "spiral_logarithmic":
+      drawSpiralWithEllipses_logarithmic();
+      break;
+
+    default:
+      break;
+  }
+  //add this function call to enable commenting
+  displayComment(width, height);
 }
 
-function drawCircleWithEllipses(debug) {
+function drawCircleWithEllipses() {
   let dotSize = 4;
 
   if (debug === true) {
@@ -61,46 +89,47 @@ function drawCircleWithEllipses(debug) {
   }
 }
 
-function drawSpiralWithEllipses_archimedean(debug) {
+function drawSpiralWithEllipses_archimedean() {
+  let totalAngle = 360 * 4;
   let dotSize = 2;
-  let angle = 360 * 4;
 
   if (debug === true) {
     showDebugLines();
   }
 
-  for (let i = 0; i < points; i++) {
-    push();
-    let curAngle = i * (angle / points);
-    rotate(curAngle);
-    fill(255);
-    noStroke();
-    ellipse(0, (i * radius) / points, dotSize, dotSize);
-    pop();
+  fill(255);
+  noStroke();
+
+  for (
+    let curAngle = 0;
+    curAngle < totalAngle;
+    curAngle += totalAngle / points
+  ) {
+    let curRadius = radius * (curAngle / totalAngle);
+    let x = sin(curAngle) * curRadius;
+    let y = cos(curAngle) * curRadius;
+    ellipse(x, y, dotSize, dotSize);
   }
 }
 
-function drawSpiralWithEllipses_logarithmic(debug) {
-  let dotSize = 2;
-  let angle = 360 * 4;
-
-  if (debug === true) {
-    showDebugLines();
-  }
-
-  for (let i = 0; i < points; i++) {
-    push();
-    let curAngle = i * i * (angle / points);
-    // console.log(curAngle);
-    rotate(curAngle);
-    fill(255);
-    noStroke();
-    ellipse(0, (i * radius) / points, dotSize, dotSize);
-    pop();
+function drawSpiralWithEllipses_logarithmic() {
+  let step = 10;
+  let exponent = 0.0003;
+  let dotSize = 5;
+  let curRadius = 0;
+  let angle = 0;
+  noStroke();
+  fill(255);
+  while (curRadius < radius) {
+    curRadius = Math.exp(exponent * angle);
+    let x = curRadius * cos(angle);
+    let y = curRadius * sin(angle);
+    ellipse(x, y, dotSize, dotSize);
+    angle += step;
   }
 }
 
-function drawWithVertex(debug) {
+function drawWithVertex() {
   let angleStep = 360 / points;
   let width = 1;
   let height = 1;
@@ -122,7 +151,7 @@ function drawWithVertex(debug) {
   endShape(CLOSE);
 }
 
-function drawWithLines_points(debug) {
+function drawWithLines_points() {
   let gamma = 360 / points;
   let width = 1;
   let height = 1;
@@ -147,7 +176,7 @@ function drawWithLines_points(debug) {
   }
 }
 
-function drawWithLines_width(debug) {
+function drawWithLines_width() {
   let gamma = 360 / points;
 
   if (debug === true) {
@@ -180,8 +209,8 @@ function showDebugLines() {
   ellipse(0, 0, radius * 2, radius * 2);
 
   // draw connection lines from center to each vertex of the polygon
-  let gamma = 360 / points;
   stroke(255, 0, 0, 0.6);
+  let gamma = 360 / points;
   for (let i = 0; i < 360; i += gamma) {
     line(0, 0, radius * sin(i), radius * cos(i));
   }
