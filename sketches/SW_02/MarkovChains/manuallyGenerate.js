@@ -1,3 +1,4 @@
+let canvas;
 let rootLinks = {};
 let words = [];
 
@@ -8,39 +9,113 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 400);
-
+  const cWidth =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+  const cHeight =
+    window.innerHeight ||
+    document.documentElement.clientHeight ||
+    document.body.clientHeight;
+  canvas = createCanvas(cWidth, cHeight);
   analyzeText(currentText);
-  // console.log(generateRandomSentence(15));
-
-  console.log(rootLinks["Mr."]);
-
-  // test probability calculation
-  for (let i = 0; i < 100; i++) {
-    let currentWord = new Word("Mr.", 1);
-    let chainLink = rootLinks["Mr."].getNextChainLink();
-
-    console.log("Mr. " + chainLink.word + " / " + chainLink.occurences);
-  }
-
-  // create first random sentence
-  // Should start with capital letter
-  // should have aprox. 15 words
-  // should end with a punctuation mark
-  // each word is styled according to its occurences
-  // probable -> small/red
-  // unprobable -> big/green
-
-  // Word.onclick = create new random sentence
+  console.log(canvas.canvas);
+  canvas.canvas.addEventListener("click", createFirstSentence);
+  Array.from(document.getElementsByTagName("button")).forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      loadStrings(event.target.value, (text) => {
+        analyzeText(text);
+      });
+    });
+  });
 }
 
+function draw() {
+  background(255);
+  translate(width / 2, height / 2);
+
+  displayComment(width, height);
+}
+
+function createFirstSentence(event) {
+  let startingWord;
+  // First word should be capital!
+  do {
+    let wordText = words[Math.floor(Math.random() * words.length)];
+    startingWord = new Word(wordText, 0.5);
+  } while (!startingWord.startsWithCapitalLetter());
+
+  let firstSentence = generateRandomSentence(8, startingWord);
+  displaySentence(
+    firstSentence,
+    { x: event.pageX, y: event.pageY },
+    "horizontal"
+  );
+  canvas.canvas.removeEventListener("click", createFirstSentence);
+}
+
+function displaySentence(words, initialPosition, direction) {
+  let container = document.createElement("div");
+  words.forEach((word) => {
+    let wordDiv = document.createElement("div");
+    wordDiv.innerText = word.word + " ";
+    wordDiv["word"] = word;
+    container.appendChild(wordDiv);
+    wordDiv.style.color =
+      "hsl(120, 100%, " + map(word.probability, 0, 1, 0, 50) + "%)";
+    wordDiv.style.fontSize = map(word.probability, 0, 1, 13, 30) + "px";
+    wordDiv.classList.add("word");
+    wordDiv.addEventListener("click", (event) => {
+      let sentence = generateRandomSentence(10, wordDiv.word);
+      console.log(direction);
+      if (direction == "horizontal") {
+        displaySentence(
+          sentence,
+          { x: event.pageX, y: event.pageY },
+          "vertical"
+        );
+      } else {
+        displaySentence(
+          sentence,
+          { x: event.pageX, y: event.pageY },
+          "horizontal"
+        );
+      }
+    });
+  });
+  container.addEventListener("mouseenter", (event) => {
+    Array.from(document.getElementsByClassName("container")).forEach(
+      (other) => {
+        if (other != container) {
+          other.classList.add("container--faded");
+        }
+      }
+    );
+  });
+  container.addEventListener("mouseleave", (event) => {
+    Array.from(document.getElementsByClassName("container")).forEach(
+      (other) => {
+        if (other != container) {
+          other.classList.remove("container--faded");
+        }
+      }
+    );
+  });
+  container.classList.add("container");
+  console.log(1 + Math.floor(Math.random() * 2));
+  container.classList.add(
+    "container--" + direction + "--" + (1 + Math.floor(Math.random() * 2))
+  );
+  container.style.left = initialPosition.x + "px";
+  container.style.top = initialPosition.y + "px";
+  document.body.appendChild(container);
+}
 class RootLink {
   constructor(word) {
     this.word = word;
     this.chainLinks = [];
   }
 
-  //  THIS SHIT IS RIGGED!!!
   getNextChainLink() {
     let totalOccurences = 0;
     this.chainLinks.forEach((chainLink) => {
@@ -48,27 +123,16 @@ class RootLink {
     });
 
     let currentChainLink;
-    let probabilityRoll = Math.random();
+    let probabilityRoll;
     let chainLinkProbability;
     do {
-      console.log(Math.floor(Math.random() * this.chainLinks.length));
+      probabilityRoll = Math.random();
       currentChainLink = this.chainLinks[
         Math.floor(Math.random() * this.chainLinks.length)
       ];
-
       chainLinkProbability = currentChainLink.occurences / totalOccurences;
-      if (probabilityRoll < chainLinkProbability) {
-        console.log(
-          "Probability of " +
-            currentChainLink.word +
-            " is " +
-            chainLinkProbability +
-            " / Roll was: " +
-            probabilityRoll
-        );
-        break;
-      }
-    } while (probabilityRoll < chainLinkProbability);
+      currentChainLink.probability = chainLinkProbability;
+    } while (probabilityRoll > chainLinkProbability);
     return currentChainLink;
   }
 }
@@ -85,9 +149,9 @@ class ChainLink {
 }
 
 class Word {
-  constructor(word, occurences) {
+  constructor(word, probability) {
     this.word = word;
-    this.occurences = occurences;
+    this.probability = probability;
   }
   hasPunctuationMark() {
     let lastChar = this.word.slice(-1);
@@ -103,6 +167,7 @@ class Word {
 }
 
 function analyzeText(textAsStringArray) {
+  rootLinks = {};
   let tempSource = "";
   textAsStringArray.forEach((line) => {
     tempSource += line;
@@ -139,39 +204,32 @@ function analyzeText(textAsStringArray) {
       rootLink.chainLinks.push(new ChainLink(nextWord));
     }
   }
-
-  console.log(rootLinks);
 }
 
 /**
  * returns: Array of word objects
  */
-function generateRandomSentence(preferredMaxLength) {
+function generateRandomSentence(preferredMaxLength, startingWord) {
   let sentence = [];
   let currentWord = {};
-
-  // First word should be capital!
-  do {
-    let wordText = words[Math.floor(Math.random() * words.length)];
-    currentWord = new Word(wordText, 1);
-  } while (!currentWord.startsWithCapitalLetter());
-  sentence.push(currentWord);
+  sentence.push(startingWord);
+  currentWord = startingWord;
 
   // get random weighted words according to probability
   while (sentence.length < preferredMaxLength - 1) {
     let chainLink = rootLinks[currentWord.word].getNextChainLink();
-    currentWord = new Word(chainLink.word, chainLink.occurences);
+    console.log(chainLink.probability);
+
+    currentWord = new Word(chainLink.word, chainLink.probability);
     sentence.push(currentWord);
   }
 
   // find word with punctuation mark
   while (!currentWord.hasPunctuationMark()) {
     let chainLink = rootLinks[currentWord.word].getNextChainLink();
-    currentWord = new Word(chainLink.word, chainLink.occurences);
+    currentWord = new Word(chainLink.word, chainLink.probability);
     sentence.push(currentWord);
   }
 
   return sentence;
 }
-
-function displaySentence(words) {}
