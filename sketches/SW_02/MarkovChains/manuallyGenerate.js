@@ -1,4 +1,5 @@
 let rootLinks = {};
+let words = [];
 
 let currentText;
 
@@ -10,12 +11,23 @@ function setup() {
   createCanvas(400, 400);
 
   analyzeText(currentText);
+  // console.log(generateRandomSentence(15));
+
+  console.log(rootLinks["Mr."]);
+
+  // test probability calculation
+  for (let i = 0; i < 100; i++) {
+    let currentWord = new Word("Mr.", 1);
+    let chainLink = rootLinks["Mr."].getNextChainLink();
+
+    console.log("Mr. " + chainLink.word + " / " + chainLink.occurences);
+  }
 
   // create first random sentence
   // Should start with capital letter
   // should have aprox. 15 words
   // should end with a punctuation mark
-  // each word is styled according to its probability
+  // each word is styled according to its occurences
   // probable -> small/red
   // unprobable -> big/green
 
@@ -28,28 +40,65 @@ class RootLink {
     this.chainLinks = [];
   }
 
-  getNextChainLink() {}
+  //  THIS SHIT IS RIGGED!!!
+  getNextChainLink() {
+    let totalOccurences = 0;
+    this.chainLinks.forEach((chainLink) => {
+      totalOccurences += chainLink.occurences;
+    });
+
+    let currentChainLink;
+    let probabilityRoll = Math.random();
+    let chainLinkProbability;
+    do {
+      console.log(Math.floor(Math.random() * this.chainLinks.length));
+      currentChainLink = this.chainLinks[
+        Math.floor(Math.random() * this.chainLinks.length)
+      ];
+
+      chainLinkProbability = currentChainLink.occurences / totalOccurences;
+      if (probabilityRoll < chainLinkProbability) {
+        console.log(
+          "Probability of " +
+            currentChainLink.word +
+            " is " +
+            chainLinkProbability +
+            " / Roll was: " +
+            probabilityRoll
+        );
+        break;
+      }
+    } while (probabilityRoll < chainLinkProbability);
+    return currentChainLink;
+  }
 }
 
 class ChainLink {
   constructor(word) {
     this.word = word;
-    this.probability = 1;
+    this.occurences = 1;
   }
 
-  increaseProbability() {
-    this.probability += 1;
-  }
-
-  getSelfAsRoot() {
-    // return the object in the dictionary as rootlink
+  increaseOccurenceCount() {
+    this.occurences += 1;
   }
 }
 
 class Word {
-  constructor(word, probability) {
+  constructor(word, occurences) {
     this.word = word;
-    this.probability = probability;
+    this.occurences = occurences;
+  }
+  hasPunctuationMark() {
+    let lastChar = this.word.slice(-1);
+    if (lastChar == "." || lastChar == "!" || lastChar == "?") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  startsWithCapitalLetter() {
+    return /[A-Z]/.test(this.word[0]);
   }
 }
 
@@ -61,7 +110,7 @@ function analyzeText(textAsStringArray) {
   });
 
   // create array containing all words
-  let words = splitTokens(tempSource, [" "]);
+  words = splitTokens(tempSource, [" "]);
 
   // for every word of our text
   for (let i = 0; i < words.length; i++) {
@@ -81,11 +130,11 @@ function analyzeText(textAsStringArray) {
     }
 
     let currentChainLink = rootLink.chainLinks.find((chainLink) => {
-      chainLink.word == nextWord;
+      return chainLink.word == nextWord;
     });
 
     if (currentChainLink != undefined) {
-      currentChainLink.increaseProbability();
+      currentChainLink.increaseOccurenceCount();
     } else {
       rootLink.chainLinks.push(new ChainLink(nextWord));
     }
@@ -98,9 +147,31 @@ function analyzeText(textAsStringArray) {
  * returns: Array of word objects
  */
 function generateRandomSentence(preferredMaxLength) {
-  let words = [];
+  let sentence = [];
+  let currentWord = {};
 
-  while (words.length < preferredMaxLength && !currentWordHasPunctuationMark) {}
+  // First word should be capital!
+  do {
+    let wordText = words[Math.floor(Math.random() * words.length)];
+    currentWord = new Word(wordText, 1);
+  } while (!currentWord.startsWithCapitalLetter());
+  sentence.push(currentWord);
+
+  // get random weighted words according to probability
+  while (sentence.length < preferredMaxLength - 1) {
+    let chainLink = rootLinks[currentWord.word].getNextChainLink();
+    currentWord = new Word(chainLink.word, chainLink.occurences);
+    sentence.push(currentWord);
+  }
+
+  // find word with punctuation mark
+  while (!currentWord.hasPunctuationMark()) {
+    let chainLink = rootLinks[currentWord.word].getNextChainLink();
+    currentWord = new Word(chainLink.word, chainLink.occurences);
+    sentence.push(currentWord);
+  }
+
+  return sentence;
 }
 
 function displaySentence(words) {}

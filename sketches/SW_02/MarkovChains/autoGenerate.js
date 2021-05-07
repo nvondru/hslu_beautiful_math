@@ -9,46 +9,7 @@ function setup() {
 
   let button = createButton("Generate");
   button.mousePressed(generateRandomText);
-
-  // create first random sentence
-  // Should start with capital letter
-  // should have aprox. 15 words
-  // should end with a punctuation mark
-  // each word is styled according to its probability
-  // probable -> small/red
-  // unprobable -> big/green
-
-  // Word.onclick = create new random sentence
 }
-
-class RootLink {
-  constructor(word) {
-    this.word = word;
-    this.chainLinks = [];
-  }
-
-  getNextChainLink() {}
-}
-
-class ChainLink {
-  constructor(word) {
-    this.word = word;
-    this.probability = 1;
-  }
-
-  increaseProbability() {
-    this.probability += 1;
-  }
-
-  getSelfAsRoot() {
-    // return the object in the dictionary as rootlink
-  }
-}
-
-/**
- * returns: Array of word objects
- */
-function generateRandomSentence() {}
 
 function generateRandomText() {
   lines = loadStrings("./sources/harrypotter.txt", () => {
@@ -80,7 +41,12 @@ function generateRandomText() {
 
     // random text generation
     let generatedText = "";
-    let currentWord = words[Math.floor(Math.random() * words.length)];
+    // First word should be capital!
+    let currentWord;
+    do {
+      currentWord = words[Math.floor(Math.random() * words.length)];
+    } while (!startsWithCapitalLetter(currentWord));
+
     generatedText += currentWord;
     generatedText += " ";
     for (let i = 0; i < 300; i++) {
@@ -100,4 +66,12 @@ function generateRandomText() {
     p.style("font-size", "16px");
     p.position(10, 0);
   });
+}
+let currentWord;
+do {
+  currentWord = words[Math.floor(Math.random() * words.length)];
+} while (!startsWithCapitalLetter(currentWord));
+// ...
+function startsWithCapitalLetter(word) {
+  return /[A-Z]/.test(word[0]);
 }
