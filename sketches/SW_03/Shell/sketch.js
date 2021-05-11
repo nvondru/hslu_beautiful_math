@@ -1,4 +1,4 @@
-let circlePoints = 10;
+let circlePoints = 20;
 let circleWidth = 50;
 let circleHeight = 50;
 
@@ -7,6 +7,8 @@ let width = 100;
 let height = 100;
 
 let circlesVertices = [];
+
+let shellCount = 8;
 
 function setup() {
   createCanvas(800, 800, WEBGL);
@@ -20,40 +22,53 @@ function setup() {
   };
 
   angleMode(DEGREES);
+  strokeWeight(1);
+  stroke(120);
 }
 
 function draw() {
   background(220);
-  stroke(0);
-  strokeWeight(0.2);
+  randomSeed(93);
 
   drawGuides();
-  createVertices();
-  drawVertices();
-  randomSeed(93);
+  // drawDonut();
+  drawShell();
 
   circlesVertices = [];
 }
 
 // create circle vertices rotated around a circle
-function createVertices() {
+function drawDonut() {
   for (let i = 0; i <= 360; i += angleStep) {
     let x = width * sin(i);
     let y = height * cos(i);
     let z = 0;
     let center = { x, y, z };
-    circlesVertices.push(createCircleVertices(center, i));
+    circlesVertices.push(createCircleVertices(center, i, 1));
   }
+  drawVertices();
 }
 
-function createCircleVertices(center, deg) {
+function drawShell() {
+  for (let i = 0; i <= 360 * shellCount; i += angleStep) {
+    let shrinkFactor = map(i, 0, 360 * shellCount, 1, 0);
+    let x = width * sin(i) * shrinkFactor;
+    let y = height * cos(i) * shrinkFactor;
+    let z = i / 4;
+    let center = { x, y, z };
+    circlesVertices.push(createCircleVertices(center, i, shrinkFactor));
+  }
+  drawVertices();
+}
+
+function createCircleVertices(center, deg, shrinkFactor) {
   let angleStep = 360 / circlePoints;
   let vertices = [];
   let origin = vec3.fromValues(center.x, center.y, center.z);
 
   for (let i = 1; i < 360; i += angleStep) {
-    let x = center.x + circleWidth * sin(i);
-    let y = center.y + circleHeight * cos(i);
+    let x = (center.x + circleWidth * sin(i)) * shrinkFactor;
+    let y = (center.y + circleHeight * cos(i)) * shrinkFactor;
     let z = center.z;
 
     let vertexVector = vec3.fromValues(x, y, z);
@@ -87,12 +102,12 @@ function drawVertices() {
 
     // for each point of a circle
     for (let j = 0; j < currentCircle.length; j++) {
-      let r = random(60);
-      let g = random(256);
-      let b = random(120);
+      let r = random(180);
+      let g = random(40, 200);
+      let b = random(90);
       noStroke();
-
       fill(r, g, b);
+
       // if not last circle
       if (i + 1 < circlesVertices.length) {
         let nextCircle = circlesVertices[i + 1];
