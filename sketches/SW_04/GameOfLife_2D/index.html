@@ -7,12 +7,30 @@
     <title>Sketch</title>
 
     <link rel="stylesheet" type="text/css" href="style.css" />
-
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="libraries/p5.min.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
   </head>
 
   <body>
+    <input type="number" value="100" id="inputDimensions" min="10" max="1000" />
+    <select name="" id="modeSelect">
+      <option value="centered">Centered</option>
+      <option value="random">Random</option>
+    </select>
+    <button id="buttonStart">Start</button>
+
+    <div id="chart"></div>
+
+    <input
+      type="range"
+      disabled
+      value="0"
+      id="aliveMeter"
+      min="0"
+      max="10000"
+    />
+
     <script src="sketch.js"></script>
   </body>
 </html>

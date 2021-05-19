@@ -1,8 +1,28 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
 
 canvas {
   display: block;
+}
+
+#aliveMeter {
+  width: 800px;
+  position: absolute;
+  top: 850px;
+  left: 0px;
+}
+
+#chart {
+  position: absolute;
+  width: 800px;
+  height: 200px;
+  top: 20px;
+  left: 800px;
+}
+
+chart {
+  width: 100%;
 }
