@@ -66,7 +66,7 @@ function draw() {
   background(220);
   tick();
   drawCurrentGrid();
-  updateUI();
+  // updateUI();
 }
 
 function initializeSeedGrid() {
@@ -114,7 +114,7 @@ function drawCurrentGrid() {
       }
 
       let rndPos = random(1, 10);
-      let rndSize = random(1, 100);
+      let rndSize = random(1, 200);
       rect(
         field.x * fieldWidth,
         field.y * fieldHeight,

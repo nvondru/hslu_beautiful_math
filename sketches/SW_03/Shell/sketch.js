@@ -8,7 +8,7 @@ let height = 100;
 
 let circlesVertices = [];
 
-let shellCount = 8;
+let shellCount = 2;
 
 function setup() {
   createCanvas(800, 800, WEBGL);
@@ -31,8 +31,8 @@ function draw() {
   randomSeed(93);
 
   drawGuides();
-  // drawDonut();
-  drawShell();
+  drawDonut();
+  // drawShell();
 
   circlesVertices = [];
 }
@@ -102,9 +102,9 @@ function drawVertices() {
 
     // for each point of a circle
     for (let j = 0; j < currentCircle.length; j++) {
-      let r = random(180);
-      let g = random(40, 200);
-      let b = random(90);
+      let r = random(255);
+      let g = random(255);
+      let b = random(255);
       noStroke();
       fill(r, g, b);
 
