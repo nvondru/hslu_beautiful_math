@@ -24,7 +24,6 @@ let trees = [];
 function setup() {
   createCanvas(800, 800);
   frameRate(100);
-
   // Define colors
   c1 = color(100, 10, 10);
   c2 = color(250, 225, 106);
@@ -33,6 +32,7 @@ function setup() {
   layers.push(drawLandscape(300, 100, 10, 20, 120, 0.2));
   layers.push(drawLandscape(500, 80, 3, 6, 70, 0.5));
   layers.push(drawLandscape(600, 50, 3, 8, 0, 1));
+
   stroke(0);
   angleMode(DEGREES);
 }
@@ -50,7 +50,9 @@ function draw() {
   // growTree(randomTree);
 
   trees.forEach((tree) => {
-    growTree(tree);
+    if (tree.stringRewriter.levels <= 5) {
+      growTree(tree);
+    }
   });
 }
 
@@ -60,8 +62,8 @@ function spawnRandomTree(posX, posY, layer) {
     F: randomRule.formula,
   });
   let randomSizeAmplitude = random(
-    -(randomRule.stepSize * layer.sizeFactor) / 4,
-    (randomRule.stepSize * layer.sizeFactor) / 4
+    -(randomRule.stepSize * layer.sizeFactor) / 2,
+    (randomRule.stepSize * layer.sizeFactor) / 2
   );
   renderer = new StringRenderer(
     randomRule.angle,
@@ -81,17 +83,16 @@ function spawnRandomTree(posX, posY, layer) {
 function growTree(tree) {
   push();
   let fillColor = tree.layer.fillColor;
+  // let r = random(0, 256);
+  // let g = random(0, 256);
+  // let b = random(0, 256);
+  // stroke(r, g, b);
   stroke(fillColor, fillColor, fillColor);
   strokeWeight(1);
   translate(tree.posX, tree.posY);
   let state = tree.stringRewriter.state;
-  if (tree.stringRewriter.levels <= 5) {
-    state = tree.stringRewriter.createNextGeneration();
-  } else {
-    // setTimeout(() => {
-    //   trees.splice(trees.indexOf(tree), 1);
-    // }, 3000);
-  }
+  state = tree.stringRewriter.createNextGeneration();
+
   tree.renderer.interpretState(state);
   pop();
 }

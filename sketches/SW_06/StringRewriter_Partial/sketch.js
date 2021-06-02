@@ -8,7 +8,7 @@ let firstTimestamp = Date.now();
 
 function setup() {
   createCanvas(800, 800);
-  frameRate(100);
+  frameRate(20);
 
   rules = [
     {
