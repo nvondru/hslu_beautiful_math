@@ -5,7 +5,7 @@ let nextGrid;
 let canvasWidth = 800;
 let canvasHeight = 800;
 
-let gridDimension = 100;
+let gridDimension = 1000;
 let fieldWidth;
 let fieldHeight;
 

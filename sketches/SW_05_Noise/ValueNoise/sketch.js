@@ -43,12 +43,14 @@ function drawLine(p1, p2) {
 
   let step = 1;
   for (let x = x0; x < x1; x += step) {
-    // let y = interpolateLinear(x, x0, x1, y0, y1);
-    // let nextY = interpolateLinear(x + step, x0, x1, y0, y1);
+    let y = interpolateLinear(x, x0, x1, y0, y1);
+    let nextY = interpolateLinear(x + step, x0, x1, y0, y1);
+
     // let y = interpolateCosinean(x, x0, x1, y0, y1);
     // let nextY = interpolateCosinean(x + step, x0, x1, y0, y1);
-    let y = interpolateSmoothStep(x, x0, x1, y0, y1);
-    let nextY = interpolateSmoothStep(x + step, x0, x1, y0, y1);
+
+    // let y = interpolateSmoothStep(x, x0, x1, y0, y1);
+    // let nextY = interpolateSmoothStep(x + step, x0, x1, y0, y1);
 
     stroke(0);
     strokeWeight(1);
