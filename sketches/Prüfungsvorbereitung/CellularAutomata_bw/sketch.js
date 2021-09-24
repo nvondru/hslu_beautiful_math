@@ -3,7 +3,7 @@ let currentImg;
 let d;
 
 function preload() {
-  sourceImg = loadImage("./images/maron.jpg");
+  sourceImg = loadImage("./images/illidan.jpg");
 }
 
 function setup() {

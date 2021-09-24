@@ -3,7 +3,7 @@ let currentImg;
 let d;
 
 function preload() {
-  sourceImg = loadImage("./images/maron.jpg");
+  sourceImg = loadImage("./images/illidan.jpg");
 }
 
 function setup() {
@@ -39,7 +39,7 @@ function draw() {
       let a = currentImg.pixels[loc + 3];
       let c = color(r, g, b, a);
       let bright = brightness(c);
-      if (bright >= 50) {
+      if (bright >= 10) {
         let neighLoc = getRandomNeighbour(x, y, 3);
 
         let tempR = currentImg.pixels[loc];

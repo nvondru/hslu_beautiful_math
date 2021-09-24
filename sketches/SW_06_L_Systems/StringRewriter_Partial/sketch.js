@@ -8,7 +8,7 @@ let firstTimestamp = Date.now();
 
 function setup() {
   createCanvas(800, 800);
-  frameRate(20);
+  frameRate(3);
 
   rules = [
     {
@@ -57,7 +57,9 @@ function setup() {
 function draw() {
   let randomX = random(0, width);
   let randomY = random(0, height);
-  trees.push(spawnRandomTree(randomX, randomY));
+  if (random(0, 4) > 3) {
+    trees.push(spawnRandomTree(randomX, randomY));
+  }
 
   trees.forEach((tree) => {
     if (tree.stringRewriter.levels <= tree.rule.maxLevels) {

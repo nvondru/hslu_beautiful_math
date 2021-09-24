@@ -1,7 +1,7 @@
 let sourceImg;
 let currentImg;
 let d;
-let threshold = 50;
+let threshold = 30;
 
 function preload() {
   sourceImg = loadImage("./images/illidan.jpg");

@@ -3,7 +3,7 @@ let currentImg;
 let d;
 
 function preload() {
-  sourceImg = loadImage("./images/illidan.jpg");
+  sourceImg = loadImage("./images/gnome.jpg");
 }
 
 function setup() {

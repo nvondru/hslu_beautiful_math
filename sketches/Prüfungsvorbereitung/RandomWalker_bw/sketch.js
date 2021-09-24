@@ -1,7 +1,7 @@
 let sourceImg;
 let currentImg;
 let d;
-
+let threshold = 30;
 function preload() {
   sourceImg = loadImage("./images/illidan.jpg");
 }
@@ -21,7 +21,7 @@ function setup() {
       let a = sourceImg.pixels[loc + 3];
       let c = color(r, g, b, a);
       let bright = brightness(c);
-      if (bright <= 80) {
+      if (bright <= threshold) {
         currentImg.pixels[loc] = 255;
         currentImg.pixels[loc + 1] = 255;
         currentImg.pixels[loc + 2] = 255;

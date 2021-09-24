@@ -5,7 +5,7 @@ let nextGrid;
 let canvasWidth = 800;
 let canvasHeight = 800;
 
-let gridDimension = 1000;
+let gridDimension = 100;
 let fieldWidth;
 let fieldHeight;
 
@@ -15,7 +15,7 @@ let inputDimensions = document.getElementById("inputDimensions");
 let buttonStart = document.getElementById("buttonStart");
 let aliveMeter = document.getElementById("aliveMeter");
 
-let fps = 100;
+let fps = 20;
 
 function setup() {
   createCanvas(canvasWidth, canvasHeight);
@@ -66,7 +66,7 @@ function draw() {
   background(220);
   tick();
   drawCurrentGrid();
-  // updateUI();
+  updateUI();
 }
 
 function initializeSeedGrid() {

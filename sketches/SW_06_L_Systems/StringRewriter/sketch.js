@@ -23,7 +23,7 @@ let trees = [];
 
 function setup() {
   createCanvas(800, 800);
-  frameRate(100);
+  frameRate(10);
   // Define colors
   c1 = color(100, 10, 10);
   c2 = color(250, 225, 106);
@@ -82,12 +82,12 @@ function spawnRandomTree(posX, posY, layer) {
 
 function growTree(tree) {
   push();
-  let fillColor = tree.layer.fillColor;
-  // let r = random(0, 256);
-  // let g = random(0, 256);
-  // let b = random(0, 256);
-  // stroke(r, g, b);
-  stroke(fillColor, fillColor, fillColor);
+  // let fillColor = tree.layer.fillColor;
+  let r = random(70, 90);
+  let g = random(80, 120);
+  let b = random(20, 60);
+  stroke(r, g, b);
+  // stroke(fillColor, fillColor, fillColor);
   strokeWeight(1);
   translate(tree.posX, tree.posY);
   let state = tree.stringRewriter.state;

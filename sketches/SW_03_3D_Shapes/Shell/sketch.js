@@ -1,8 +1,8 @@
-let circlePoints = 20;
+let circlePoints = 10;
 let circleWidth = 50;
 let circleHeight = 50;
 
-let angleStep = 360 / 60;
+let angleStep = 360 / 20;
 let width = 100;
 let height = 100;
 
@@ -30,7 +30,7 @@ function draw() {
   background(220);
   randomSeed(93);
 
-  drawGuides();
+  // drawGuides();
   drawDonut();
   // drawShell();
 
